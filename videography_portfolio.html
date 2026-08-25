@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Videography Portfolio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: rgba(255, 255, 255, 0.06);
+      --panel: rgba(10, 15, 30, 0.75);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f7fb;
+      --muted: #a7b3c9;
+      --accent: #7c9cff;
+      --accent-2: #8ef0d0;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 156, 255, 0.22), transparent 32%),
+        radial-gradient(circle at top right, rgba(142, 240, 208, 0.14), transparent 25%),
+        linear-gradient(180deg, #07101f, #0c1326 40%, #070b16 100%);
+      min-height: 100vh;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    .hero {
+      padding: 24px 0 36px;
+    }
+
+    .eyebrow, .modal-kicker {
+      margin: 0 0 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: var(--accent-2);
+      font-size: 12px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 0.95;
+      margin-bottom: 16px;
+      max-width: 800px;
+    }
+
+    .subtitle {
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .gallery-header p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .status-pill {
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      background: var(--bg-soft);
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 14px;
+      white-space: nowrap;
+      backdrop-filter: blur(14px);
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      min-height: 420px;
+      isolation: isolate;
+    }
+
+    .card video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(4, 7, 14, 0.05) 0%, rgba(4, 7, 14, 0.12) 36%, rgba(4, 7, 14, 0.85) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .card-content {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 22px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .card h3 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #d6def0;
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .preview-button {
+      align-self: flex-start;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #09101f;
+      background: linear-gradient(135deg, var(--accent-2), #c3fff0);
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
+      pointer-events: none;
+    }
+
+    .card:hover .preview-button,
+    .card:focus-within .preview-button {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .preview-button:hover,
+    .preview-button:focus-visible {
+      filter: brightness(1.06);
+      outline: none;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      z-index: 50;
+    }
+
+    .modal.open {
+      display: grid;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 5, 12, 0.82);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-panel {
+      position: relative;
+      width: min(1100px, 100%);
+      background: linear-gradient(180deg, rgba(14, 19, 34, 0.96), rgba(9, 13, 24, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      z-index: 1;
+    }
+
+    .modal-video-wrap {
+      background: #000;
+      max-height: 72vh;
+    }
+
+    .modal-video-wrap video {
+      width: 100%;
+      max-height: 72vh;
+      display: block;
+      object-fit: contain;
+    }
+
+    .modal-meta {
+      padding: 24px 28px 30px;
+    }
+
+    .modal-meta p:last-child {
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(7, 10, 18, 0.72);
+      color: var(--text);
+      font-size: 28px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .modal-close:hover,
+    .modal-close:focus-visible {
+      background: rgba(18, 23, 40, 0.95);
+      outline: none;
+    }
+
+    @media (max-width: 720px) {
+      .page-shell {
+        width: min(100% - 28px, 1180px);
+        padding-top: 24px;
+      }
+
+      .gallery-header {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .card {
+        min-height: 340px;
+      }
+
+      .card h3 {
+        font-size: 22px;
+      }
+
+      .modal {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <p class="eyebrow">Creative Reel</p>
+      <h1>Videography Portfolio</h1>
+      <p class="subtitle">Autoplay previews, elegant hover states, and a full-screen preview for every project.</p>
+    </header>
+
+    <main>
+      <section class="gallery-header">
+        <div>
+          <h2>Featured Work</h2>
+          <p>Hover any project to reveal the full preview button.</p>
+        </div>
+        <span class="status-pill">6 live previews</span>
+      </section>
+
+      <section class="portfolio-grid" id="portfolioGrid">
+        <!-- GALLERY_PLACEHOLDER -->
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="closeModal" aria-label="Close preview">×</button>
+      <div class="modal-video-wrap">
+        <video id="modalVideo" controls playsinline></video>
+      </div>
+      <div class="modal-meta">
+        <p class="modal-kicker">Full Preview</p>
+        <h3 id="modalTitle">Project Title</h3>
+        <p id="modalDescription">Project description</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const projects = [
+      {
+        title: 'Noir Streets',
+        category: 'Fashion Film',
+        description: 'A moody city-night editorial with slow tracking shots, reflective surfaces, and dramatic contrast.',
+        src: 'https://www.w3schools.com/html/mov_bbb.mp4'
+      },
+      {
+        title: 'Summit Run',
+        category: 'Commercial',
+        description: 'Energetic outdoor campaign footage focused on motion, altitude, and lifestyle storytelling.',
+        src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4'
+      },
+      {
+        title: 'Afterlight',
+        category: 'Music Visual',
+        description: 'Soft neon tones, intimate portrait framing, and rhythmic edits designed for artist promos.',
+        src: 'https://www.w3schools.com/html/movie.mp4'
+      },
+      {
+        title: 'The Maker',
+        category: 'Documentary',
+        description: 'A craft-focused documentary portrait featuring hands-on details, texture, and natural light.',
+        src: 'https://media.w3.org/2010/05/sintel/trailer.mp4'
+      },
+      {
+        title: 'Drift Theory',
+        category: 'Automotive',
+        description: 'High-energy performance visuals with kinetic motion, clean transitions, and strong sound design intent.',
+        src: 'https://media.w3.org/2010/05/bunny/trailer.mp4'
+      },
+      {
+        title: 'Luma Casa',
+        category: 'Architecture',
+        description: 'A refined property showcase blending cinematic fly-through pacing with warm interior details.',
+        src: 'https://media.w3.org/2010/05/video/movie_300.mp4'
+      }
+    ];
+
+    const portfolioGrid = document.getElementById('portfolioGrid');
+    const previewModal = document.getElementById('previewModal');
+    const modalVideo = document.getElementById('modalVideo');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const closeModal = document.getElementById('closeModal');
+
+    function createCard(project, index) {
+      const article = document.createElement('article');
+      article.className = 'card';
+      article.innerHTML = `
+        <video muted loop playsinline preload="metadata" aria-label="${project.title} preview">
+          <source src="${project.src}" type="video/mp4">
+        </video>
+        <div class="card-content">
+          <div class="card-topline">
+            <span>${project.category}</span>
+            <span>${String(index + 1).padStart(2, '0')}</span>
+          </div>
+          <div>
+            <h3>${project.title}</h3>
+            <p>${project.description}</p>
+          </div>
+          <button class="preview-button" type="button">Show Full Preview</button>
+        </div>
+      `;
+
+      const video = article.querySelector('video');
+      const button = article.querySelector('.preview-button');
+
+      const playPreview = () => {
+        video.play().catch(() => {});
+      };
+
+      video.addEventListener('loadedmetadata', playPreview);
+      article.addEventListener('mouseenter', playPreview);
+      article.addEventListener('focusin', playPreview);
+
+      button.addEventListener('click', () => openModal(project));
+      video.addEventListener('click', () => openModal(project));
+
+      return article;
+    }
+
+    function openModal(project) {
+      modalTitle.textContent = project.title;
+      modalDescription.textContent = project.description;
+      modalVideo.src = project.src;
+      previewModal.classList.add('open');
+      previewModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      modalVideo.currentTime = 0;
+      modalVideo.play().catch(() => {});
+    }
+
+    function closePreview() {
+      previewModal.classList.remove('open');
+      previewModal.setAttribute('aria-hidden', 'true');
+      modalVideo.pause();
+      modalVideo.removeAttribute('src');
+      modalVideo.load();
+      document.body.style.overflow = '';
+    }
+
+    projects.forEach((project, index) => {
+      portfolioGrid.appendChild(createCard(project, index));
+    });
+
+    closeModal.addEventListener('click', closePreview);
+    previewModal.addEventListener('click', (event) => {
+      if (event.target.dataset.close === 'true') {
+        closePreview();
+      }
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && previewModal.classList.contains('open')) {
+        closePreview();
+      }
+    });
+
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.card video').forEach((video) => {
+        video.play().catch(() => {});
+      });
+    });
+  </script>
+</body>
+</html>
